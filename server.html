@@ -602,8 +602,8 @@
     <script>
         // Configuration
         const SERVER_URL = 'https://renderserver-ymjo.onrender.com';
-        const POLL_INTERVAL = 3000; // Poll every 3 seconds
-        const MAX_POLL_ATTEMPTS = 15; // 45 seconds max polling
+        const POLL_INTERVAL = 2000; // Poll every 2 seconds
+        const MAX_POLL_ATTEMPTS = 20; // 40 seconds max polling
         
         // State variables
         let isServerStarting = false;
@@ -614,7 +614,7 @@
         let cooldownTimerInterval = null;
         let cooldownTimeLeft = 900; // 15 minutes
         let cooldownEndTime = null;
-        let startTime = null;
+        let initialWakeupSent = false;
         
         // DOM elements
         const startBtn = document.getElementById('startServerBtn');
@@ -673,64 +673,58 @@
             if (e.key === 'Escape') closeMobileMenu();
         });
         
-        // Poll server function
-        async function pollServer() {
+        // Send wake-up request (CORS-friendly)
+        async function sendWakeupRequest() {
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-                
-                const response = await fetch(SERVER_URL, {
-                    method: 'GET',
+                // Use fetch with no-cors to trigger the server wake-up
+                await fetch(SERVER_URL, {
+                    method: 'HEAD',
                     mode: 'no-cors',
-                    cache: 'no-store',
-                    signal: controller.signal
+                    cache: 'no-store'
                 });
-                
-                clearTimeout(timeoutId);
-                
-                // With no-cors mode, response status is opaque (0) and always successful
-                // We treat any response (including 502) as server is awake
-                console.log('Server responded - wake-up successful');
-                serverStartedSuccessfully();
-                
-            } catch (error) {
-                // In no-cors mode, errors only happen for network issues, not HTTP status
-                // If we get here, there's a network problem
-                console.log('Poll attempt failed:', error.message);
-                
-                // Only treat as failure if we're still polling and not timed out
-                if (pollAttempts < MAX_POLL_ATTEMPTS) {
-                    pollAttempts++;
-                    updateStatusMessage(`Polling server... (Attempt ${pollAttempts}/${MAX_POLL_ATTEMPTS})`, 'polling');
-                } else {
-                    // Max attempts reached, server didn't wake up
-                    stopPolling();
-                    serverStartFailed();
-                }
+            } catch (e) {
+                // Ignore errors - this is just to wake up the server
             }
+            
+            // Also try with image request as backup
+            const img = new Image();
+            img.src = SERVER_URL + '?_=' + Date.now();
         }
         
-        // Alternative fetch with standard mode (better for detecting actual responses)
-        async function pollServerStandard() {
+        // Poll server - actually check if it's responding
+        async function pollServer() {
             try {
-                const response = await fetch(SERVER_URL, {
-                    method: 'GET',
-                    cache: 'no-store',
-                    credentials: 'omit'
+                // Use XMLHttpRequest to actually get status (bypasses no-cors limitations)
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', SERVER_URL + '?_=' + Date.now(), true);
+                xhr.timeout = 5000;
+                
+                await new Promise((resolve, reject) => {
+                    xhr.onload = function() {
+                        // ANY status code means the server is awake!
+                        // 200, 404, 502, 503, etc. all mean the server responded
+                        console.log('Server responded with status:', xhr.status);
+                        resolve(xhr.status);
+                    };
+                    xhr.onerror = function() {
+                        reject(new Error('Network error'));
+                    };
+                    xhr.ontimeout = function() {
+                        reject(new Error('Timeout'));
+                    };
+                    xhr.send();
                 });
                 
-                // Server responded - any status means server is awake
-                // 502, 503, 200, 404 - all mean the server is running
-                console.log('Server responded with status:', response.status);
+                // If we get here, server responded (any status)
                 serverStartedSuccessfully();
                 
             } catch (error) {
-                // Network error or server unreachable
                 console.log('Poll attempt failed:', error.message);
                 
                 if (pollAttempts < MAX_POLL_ATTEMPTS) {
                     pollAttempts++;
-                    updateStatusMessage(`Waiting for server... (${pollAttempts}/${MAX_POLL_ATTEMPTS})`, 'polling');
+                    const remaining = MAX_POLL_ATTEMPTS - pollAttempts;
+                    updateStatusMessage(`⏳ Waiting for server to wake up... (${remaining} attempts remaining)`, 'polling');
                 } else {
                     stopPolling();
                     serverStartFailed();
@@ -740,13 +734,15 @@
         
         function startPolling() {
             pollAttempts = 0;
-            updateStatusMessage('Waking up server... (This may take up to 30 seconds)', 'polling');
+            updateStatusMessage('🔄 Server waking up... Checking every 2 seconds', 'polling');
             
-            // Use standard fetch for better status detection
-            pollServerStandard();
+            // Start polling
+            pollServer(); // First poll immediately
             
             pollingInterval = setInterval(() => {
-                pollServerStandard();
+                if (isServerStarting) {
+                    pollServer();
+                }
             }, POLL_INTERVAL);
         }
         
@@ -810,7 +806,6 @@
             if (isServerStarting || isInCooldown || isServerReady) return;
             
             isServerStarting = true;
-            startTime = Date.now();
             
             // Update UI
             startBtn.disabled = true;
@@ -827,13 +822,8 @@
             serverTimerDisplay.textContent = '30';
             serverProgressBar.style.width = '0%';
             
-            // Start server wake-up sequence
-            // First, send a wake-up request
-            fetch(SERVER_URL, {
-                method: 'GET',
-                mode: 'no-cors',
-                cache: 'no-store'
-            }).catch(() => {});
+            // Send initial wake-up requests
+            sendWakeupRequest();
             
             // Start timer animation
             let timeLeft = 30;
@@ -859,6 +849,11 @@
         function startCooldown(seconds) {
             isInCooldown = true;
             cooldownTimeLeft = seconds;
+            
+            // Update button to cooldown state
+            startBtn.disabled = true;
+            startBtn.textContent = '⏳ Cooldown Active';
+            startBtn.classList.add('cooldown');
             
             // Show cooldown timer
             cooldownTimerContainer.style.display = 'block';
