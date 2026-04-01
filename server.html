@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="images/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godot Game Assets - Server Control</title>
+    <style>
+        /* Color Theme Variables */
+        :root {
+            --primary: #ff6b35;
+            --secondary: #2a2a2a;
+            --accent: #00d9ff;
+            --light: #f8f9fa;
+            --dark: #1a1a1a;
+            --success: #28a745;
+            --error: #dc3545;
+            --warning: #ffc107;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--light);
+            background: linear-gradient(135deg, var(--dark) 0%, #2d1b69 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100vh;
+            background: var(--dark);
+            backdrop-filter: blur(10px);
+            z-index: 1002;
+            transition: left 0.3s ease;
+            padding: 2rem;
+            border-right: 2px solid var(--primary);
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            left: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .mobile-close-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .mobile-nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1001;
+            display: none;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 120px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .server-section {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .server-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .server-description {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 3rem;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error);
+            transition: background-color 0.3s;
+        }
+
+        .status-dot.ready {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.starting {
+            background: var(--warning);
+            animation: blink 1s infinite;
+        }
+
+        .status-dot.polling {
+            background: var(--accent);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Timer Display */
+        .timer-container {
+            margin: 2rem 0;
+        }
+
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .cooldown-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--warning);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-label {
+            color: #ccc;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cooldown-label {
+            color: var(--warning);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Button Styles */
+        .server-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            margin: 1rem 0;
+            min-width: 200px;
+        }
+
+        .server-button:hover:not(:disabled) {
+            background: #e55a2b;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .server-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .server-button.success {
+            background: var(--success);
+        }
+
+        .server-button.cooldown {
+            background: #444;
+            color: #999;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .download-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-button:hover {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .status-message {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .status-message.waiting {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+
+        .status-message.success {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .status-message.polling {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .status-message.cooldown {
+            background: rgba(108, 117, 125, 0.1);
+            border: 1px solid #6c757d;
+            color: #ccc;
+        }
+
+        .retry-count {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 2px solid var(--primary);
+            margin-top: 3rem;
+        }
+
+        .footer-text {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .server-title {
+                font-size: 2rem;
+            }
+            
+            .control-panel {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .timer-display, .cooldown-display {
+                font-size: 2.8rem;
+            }
+            
+            .server-button {
+                padding: 1rem 2rem;
+                font-size: 1.1rem;
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .server-title {
+                font-size: 1.8rem;
+            }
+            
+            .server-description {
+                font-size: 1rem;
+            }
+            
+            .timer-display, .cooldown-display {
+                font-size: 2.2rem;
+            }
+            
+            .cooldown-display {
+                font-size: 1.8rem;
+            }
+            
+            .control-panel {
+                padding: 1.5rem 1rem;
+            }
+            
+            .mobile-menu {
+                width: 100%;
+            }
+        }
+
+        /* Prevent body scroll when menu is open */
+        body.menu-open {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">GODOT ASSETS</div>
+                
+                <!-- Desktop Navigation -->
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="scripts.html">Scripts</a>
+                    <a href="minicourses.html">Mini Courses</a>
+                    <a href="services.html">Services</a>
+                    <a href="pvp-game.html">PVP Game Course</a>
+                    <a href="course.html">Course</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            </nav>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <div class="mobile-menu-logo">GODOT ASSETS</div>
+                <button class="mobile-close-btn" id="mobileCloseBtn">✕</button>
+            </div>
+            
+            <div class="mobile-nav-links">
+                <a href="index.html" onclick="closeMobileMenu()">Home</a>
+                <a href="scripts.html" onclick="closeMobileMenu()">Scripts</a>
+                <a href="minicourses.html" onclick="closeMobileMenu()">Mini Courses</a>
+                <a href="services.html" onclick="closeMobileMenu()">Services</a>
+                <a href="pvp-game.html" onclick="closeMobileMenu()">PVP Game Course</a>
+                <a href="course.html" onclick="closeMobileMenu()">Course</a>
+                <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <section class="server-section">
+                <h1 class="server-title">Game Server Control</h1>
+                <p class="server-description">
+                    Start your Godot game server. The server will be ready in 30 seconds, then the button will be disabled for 15 minutes.
+                </p>
+                
+                <div class="control-panel">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Ready to Start</span>
+                    </div>
+                    
+                    <button class="server-button" id="startServerBtn">
+                        🚀 Start Server
+                    </button>
+                    
+                    <div class="download-buttons">
+                        <a href="https://drive.google.com/file/d/15NF5uL7dyCfQ1N1OHA3auyNcK-67H3o0/view?usp=sharing" class="download-button" target="_blank">
+                            🗃️ Download Desktop Client
+                        </a>
+                        <a href="https://drive.google.com/file/d/1ksS8ak4opTwH6mhb5BBGYMuwNfv_1S2K/view?usp=drive_link" class="download-button" target="_blank">
+                            📱 Download Android Client
+                        </a>
+                    </div>
+                    
+                    <!-- Server Start Timer -->
+                    <div class="timer-container" id="serverTimerContainer" style="display: none;">
+                        <div class="timer-label">Starting Server...</div>
+                        <div class="timer-display" id="serverTimerDisplay">30</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="serverProgressBar"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cooldown Timer -->
+                    <div class="timer-container" id="cooldownTimerContainer" style="display: none;">
+                        <div class="cooldown-label">Next Start Available In:</div>
+                        <div class="cooldown-display" id="cooldownTimerDisplay">15:00</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="cooldownProgressBar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-message" id="statusMessage">
+                        Click "Start Server" to begin. Button will be disabled for 15 minutes after starting.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="logo" style="margin-bottom: 1rem;">GODOT ASSETS</div>
+            <p class="footer-text">Ready-made Godot Scripts & Systems for Faster Game Development</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: #ccc;">
+                © 2024 Godot Game Assets Marketplace. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuration
+        const SERVER_URL = 'https://renderserver-ymjo.onrender.com';
+        const POLL_INTERVAL = 3000; // Poll every 3 seconds
+        const MAX_POLL_ATTEMPTS = 15; // 45 seconds max polling
+        
+        // State variables
+        let isServerStarting = false;
+        let isInCooldown = false;
+        let isServerReady = false;
+        let pollingInterval = null;
+        let pollAttempts = 0;
+        let cooldownTimerInterval = null;
+        let cooldownTimeLeft = 900; // 15 minutes
+        let cooldownEndTime = null;
+        let startTime = null;
+        
+        // DOM elements
+        const startBtn = document.getElementById('startServerBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const statusMessage = document.getElementById('statusMessage');
+        const serverTimerContainer = document.getElementById('serverTimerContainer');
+        const serverTimerDisplay = document.getElementById('serverTimerDisplay');
+        const serverProgressBar = document.getElementById('serverProgressBar');
+        const cooldownTimerContainer = document.getElementById('cooldownTimerContainer');
+        const cooldownTimerDisplay = document.getElementById('cooldownTimerDisplay');
+        const cooldownProgressBar = document.getElementById('cooldownProgressBar');
+        
+        // Check for existing cooldown on page load
+        window.addEventListener('load', () => {
+            const savedCooldown = localStorage.getItem('serverCooldownEnd');
+            if (savedCooldown) {
+                const now = Date.now();
+                const endTime = parseInt(savedCooldown);
+                
+                if (endTime > now) {
+                    const remainingSeconds = Math.floor((endTime - now) / 1000);
+                    if (remainingSeconds > 0) {
+                        startCooldown(remainingSeconds);
+                    }
+                } else {
+                    localStorage.removeItem('serverCooldownEnd');
+                }
+            }
+        });
+        
+        // Mobile Menu Functions
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const body = document.body;
+        
+        function openMobileMenu() {
+            mobileMenu.classList.add('active');
+            mobileMenuOverlay.classList.add('active');
+            body.classList.add('menu-open');
+        }
+        
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            body.classList.remove('menu-open');
+        }
+        
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileMenu);
+        if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', closeMobileMenu);
+        if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMobileMenu();
+        });
+        
+        // Poll server function
+        async function pollServer() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(SERVER_URL, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // With no-cors mode, response status is opaque (0) and always successful
+                // We treat any response (including 502) as server is awake
+                console.log('Server responded - wake-up successful');
+                serverStartedSuccessfully();
+                
+            } catch (error) {
+                // In no-cors mode, errors only happen for network issues, not HTTP status
+                // If we get here, there's a network problem
+                console.log('Poll attempt failed:', error.message);
+                
+                // Only treat as failure if we're still polling and not timed out
+                if (pollAttempts < MAX_POLL_ATTEMPTS) {
+                    pollAttempts++;
+                    updateStatusMessage(`Polling server... (Attempt ${pollAttempts}/${MAX_POLL_ATTEMPTS})`, 'polling');
+                } else {
+                    // Max attempts reached, server didn't wake up
+                    stopPolling();
+                    serverStartFailed();
+                }
+            }
+        }
+        
+        // Alternative fetch with standard mode (better for detecting actual responses)
+        async function pollServerStandard() {
+            try {
+                const response = await fetch(SERVER_URL, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    credentials: 'omit'
+                });
+                
+                // Server responded - any status means server is awake
+                // 502, 503, 200, 404 - all mean the server is running
+                console.log('Server responded with status:', response.status);
+                serverStartedSuccessfully();
+                
+            } catch (error) {
+                // Network error or server unreachable
+                console.log('Poll attempt failed:', error.message);
+                
+                if (pollAttempts < MAX_POLL_ATTEMPTS) {
+                    pollAttempts++;
+                    updateStatusMessage(`Waiting for server... (${pollAttempts}/${MAX_POLL_ATTEMPTS})`, 'polling');
+                } else {
+                    stopPolling();
+                    serverStartFailed();
+                }
+            }
+        }
+        
+        function startPolling() {
+            pollAttempts = 0;
+            updateStatusMessage('Waking up server... (This may take up to 30 seconds)', 'polling');
+            
+            // Use standard fetch for better status detection
+            pollServerStandard();
+            
+            pollingInterval = setInterval(() => {
+                pollServerStandard();
+            }, POLL_INTERVAL);
+        }
+        
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+        
+        function serverStartedSuccessfully() {
+            if (!isServerStarting) return;
+            
+            stopPolling();
+            isServerStarting = false;
+            isServerReady = true;
+            
+            // Update UI
+            statusDot.className = 'status-dot ready';
+            statusText.textContent = 'Server Running';
+            statusMessage.className = 'status-message success';
+            statusMessage.innerHTML = '✅ Server started successfully! Ready to join. Button disabled for 15 minutes.';
+            
+            // Hide server timer
+            serverTimerContainer.style.display = 'none';
+            
+            // Update button
+            startBtn.disabled = true;
+            startBtn.textContent = '✓ Server Running';
+            startBtn.classList.add('success');
+            
+            // Save cooldown end time
+            cooldownEndTime = Date.now() + (15 * 60 * 1000);
+            localStorage.setItem('serverCooldownEnd', cooldownEndTime.toString());
+            
+            // Start 15-minute cooldown
+            startCooldown(900);
+        }
+        
+        function serverStartFailed() {
+            if (!isServerStarting) return;
+            
+            isServerStarting = false;
+            
+            // Update UI
+            statusDot.className = 'status-dot';
+            statusText.textContent = 'Start Failed';
+            statusMessage.className = 'status-message';
+            statusMessage.innerHTML = '❌ Server failed to start. Please try again.';
+            
+            // Hide server timer
+            serverTimerContainer.style.display = 'none';
+            
+            // Re-enable button (no cooldown on failure)
+            startBtn.disabled = false;
+            startBtn.textContent = '🚀 Start Server';
+            startBtn.classList.remove('cooldown', 'success');
+        }
+        
+        function startServer() {
+            if (isServerStarting || isInCooldown || isServerReady) return;
+            
+            isServerStarting = true;
+            startTime = Date.now();
+            
+            // Update UI
+            startBtn.disabled = true;
+            startBtn.textContent = '⏳ Starting...';
+            startBtn.classList.remove('cooldown', 'success');
+            
+            statusDot.className = 'status-dot starting';
+            statusText.textContent = 'Starting Server';
+            statusMessage.className = 'status-message waiting';
+            statusMessage.innerHTML = '🔄 Waking up server... This may take up to 30 seconds.';
+            
+            // Show server timer
+            serverTimerContainer.style.display = 'block';
+            serverTimerDisplay.textContent = '30';
+            serverProgressBar.style.width = '0%';
+            
+            // Start server wake-up sequence
+            // First, send a wake-up request
+            fetch(SERVER_URL, {
+                method: 'GET',
+                mode: 'no-cors',
+                cache: 'no-store'
+            }).catch(() => {});
+            
+            // Start timer animation
+            let timeLeft = 30;
+            const timerInterval = setInterval(() => {
+                if (!isServerStarting) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                serverTimerDisplay.textContent = timeLeft;
+                const progress = ((30 - timeLeft) / 30) * 100;
+                serverProgressBar.style.width = progress + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // After timer, start polling
+                    startPolling();
+                }
+            }, 1000);
+        }
+        
+        function startCooldown(seconds) {
+            isInCooldown = true;
+            cooldownTimeLeft = seconds;
+            
+            // Show cooldown timer
+            cooldownTimerContainer.style.display = 'block';
+            updateCooldownDisplay();
+            updateCooldownProgress();
+            
+            // Start cooldown countdown
+            if (cooldownTimerInterval) clearInterval(cooldownTimerInterval);
+            cooldownTimerInterval = setInterval(() => {
+                cooldownTimeLeft--;
+                updateCooldownDisplay();
+                updateCooldownProgress();
+                
+                if (cooldownTimeLeft <= 0) {
+                    clearInterval(cooldownTimerInterval);
+                    endCooldown();
+                }
+            }, 1000);
+        }
+        
+        function updateCooldownDisplay() {
+            const minutes = Math.floor(cooldownTimeLeft / 60);
+            const seconds = cooldownTimeLeft % 60;
+            cooldownTimerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function updateCooldownProgress() {
+            const progress = ((900 - cooldownTimeLeft) / 900) * 100;
+            cooldownProgressBar.style.width = progress + '%';
+        }
+        
+        function endCooldown() {
+            isInCooldown = false;
+            isServerReady = false;
+            
+            // Update UI
+            startBtn.disabled = false;
+            startBtn.textContent = '🚀 Start Server';
+            startBtn.classList.remove('cooldown', 'success');
+            
+            statusDot.className = 'status-dot';
+            statusText.textContent = 'Ready to Start';
+            statusMessage.className = 'status-message';
+            statusMessage.innerHTML = 'Click "Start Server" to begin. Button will be disabled for 15 minutes after starting.';
+            
+            cooldownTimerContainer.style.display = 'none';
+            
+            // Clear localStorage
+            localStorage.removeItem('serverCooldownEnd');
+        }
+        
+        function updateStatusMessage(msg, type) {
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.innerHTML = msg;
+        }
+        
+        // Attach start function to button
+        startBtn.onclick = startServer;
+        
+        // Close mobile menu when clicking on links
+        const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+    </script>
+</body>
+</html>
