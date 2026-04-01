@@ -1,105 +1,558 @@
-<!-- learn.html - Central learning hub -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Learn Godot 4 - Free Tutorials & Guides | SanjayAIDev</title>
-    <!-- meta tags for SEO -->
+    <meta name="description" content="Learn Godot 4 from scratch. Free tutorials, guides, and tools to help you build your first game, add multiplayer, and scale to production. Start your game development journey today.">
+    <meta name="keywords" content="Godot 4, learn Godot, Godot tutorials, Godot multiplayer, GDScript, game development">
+    <meta name="author" content="Sanjay Meher">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Learn Godot 4 - Free Tutorials & Guides | SanjayAIDev">
+    <meta property="og:description" content="From absolute beginner to shipping your first multiplayer game. Free learning paths, tools, and resources.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sanjaymeherdev.netlify.app/learn.html">
+    <meta property="og:image" content="https://sanjaymeherdev.netlify.app/assets/og-learn.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+    <style>
+        /* ========== RESET & BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* ========== VARIABLES ========== */
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #24243a;
+            --bg-hover: #2d2d44;
+            --accent: #4f46e5;
+            --accent-dark: #7c3aed;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border-radius: 12px;
+        }
+        
+        /* ========== HEADER STYLES ========== */
+        header {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .logo .tagline {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-left: 0.5rem;
+            font-weight: normal;
+        }
+        
+        /* Desktop Navigation */
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropbtn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .dropbtn:hover {
+            color: var(--accent);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: var(--bg-secondary);
+            min-width: 240px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border-radius: var(--border-radius);
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            overflow: hidden;
+        }
+        
+        .dropdown-content a {
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        
+        .dropdown-content a:hover {
+            background: var(--bg-hover);
+        }
+        
+        /* CTA Buttons */
+        .cta-button-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+        
+        .cta-button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .cta-button-secondary {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-block;
+            background: transparent;
+        }
+        
+        .cta-button-secondary:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100%;
+            background: var(--bg-secondary);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+            overflow-y: auto;
+        }
+        
+        .mobile-menu.active {
+            right: 0;
+        }
+        
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .mobile-menu-logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .mobile-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .mobile-nav-links {
+            padding: 1rem;
+        }
+        
+        .mobile-nav-links a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .mobile-nav-links a:hover {
+            background: var(--bg-hover);
+        }
+        
+        .mobile-dropdown {
+            margin: 0.5rem 0;
+        }
+        
+        .mobile-dropdown-header {
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+        
+        .mobile-dropdown a {
+            padding-left: 2rem !important;
+            font-size: 0.9rem;
+        }
+        
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+        
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+        /* ========== LEARN PAGE STYLES ========== */
+        .learn-hub {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem 4rem;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.05));
+            border-radius: var(--border-radius);
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Learning Paths */
+        .learning-paths h2,
+        .free-tools-section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .learning-paths {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .path-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+        
+        .path-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .path-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .path-card > p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .path-card ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .path-card li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .path-card li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            display: inline-block;
+        }
+        
+        .path-card li a:hover {
+            color: var(--accent);
+        }
+        
+        .path-link {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .path-link:hover {
+            transform: translateX(5px);
+        }
+        
+        /* Beginner Card Special */
+        .beginner {
+            border-top: 4px solid #10b981;
+        }
+        
+        .intermediate {
+            border-top: 4px solid #f59e0b;
+        }
+        
+        .advanced {
+            border-top: 4px solid #ef4444;
+        }
+        
+        /* Free Tools Section */
+        .free-tools-section {
+            text-align: center;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .tool-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            transition: all 0.3s;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        
+        .tool-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tool-link {
+            display: inline-block;
+            background: rgba(79, 70, 229, 0.2);
+            color: var(--accent);
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .tool-link:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            padding: 3rem 1.5rem 1.5rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(79, 70, 229, 0.2);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+        
+        .footer-section a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .learning-paths h2,
+            .free-tools-section h2 {
+                font-size: 1.5rem;
+            }
+            
+            .learn-hub {
+                padding: 2rem 1rem;
+            }
+            
+            .path-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .cta-button-primary,
+            .cta-button-secondary {
+                padding: 0.4rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .logo .tagline {
+                display: none;
+            }
+        }
+    </style>
 </head>
-<style>
-  /* Dropdown Menu */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropbtn {
-    cursor: pointer;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background: var(--bg-secondary, #1a1a2e);
-    min-width: 220px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    border-radius: 8px;
-    z-index: 1000;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
-}
-
-.dropdown-content a {
-    color: var(--text-primary, #fff);
-    padding: 0.75rem 1rem;
-    text-decoration: none;
-    display: block;
-    font-size: 0.9rem;
-    transition: background 0.2s;
-}
-
-.dropdown-content a:hover {
-    background: var(--bg-hover, #2a2a3e);
-    border-radius: 8px;
-}
-
-/* Mobile Dropdown */
-.mobile-dropdown {
-    margin: 0.5rem 0;
-}
-
-.mobile-dropdown-header {
-    font-weight: bold;
-    padding: 0.75rem 1rem;
-    color: var(--accent, #4f46e5);
-    font-size: 0.9rem;
-}
-
-.mobile-dropdown a {
-    padding-left: 2rem !important;
-    font-size: 0.9rem;
-}
-
-/* CTA Buttons */
-.cta-button-primary {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.cta-button-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.cta-button-secondary {
-    border: 2px solid #4f46e5;
-    color: #4f46e5;
-    padding: 0.5rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.cta-button-secondary:hover {
-    background: #4f46e5;
-    color: white;
-}
-
-.logo span {
-    color: #4f46e5;
-}
-
-.logo .tagline {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin-left: 0.5rem;
-}
-</style>
-  <body>
+<body>
     <div id="header"></div>
     
     <main class="learn-hub">
@@ -115,10 +568,11 @@
                 <h3>🎮 Beginner</h3>
                 <p>Just started today? Start here.</p>
                 <ul>
-                    <li><a href="#">Your First Godot Project (Video)</a></li>
-                    <li><a href="#">Understanding GDScript Basics</a></li>
-                    <li><a href="#">Build Your First 2D Platformer</a></li>
-                    <li><a href="#">Using GodotVisualCoder (Free Tool)</a></li>
+                    <li><a href="#">📺 Your First Godot Project (Video Series)</a></li>
+                    <li><a href="#">📝 Understanding GDScript Basics</a></li>
+                    <li><a href="#">🎲 Build Your First 2D Platformer</a></li>
+                    <li><a href="godotvisualcoder.html">⚡ Using GodotVisualCoder (Free Tool)</a></li>
+                    <li><a href="#">🎯 Signals & Nodes Explained</a></li>
                 </ul>
                 <a href="#" class="path-link">Start Learning →</a>
             </div>
@@ -127,10 +581,11 @@
                 <h3>⚡ Intermediate</h3>
                 <p>Ready to add multiplayer and advanced features.</p>
                 <ul>
-                    <li><a href="#">Multiplayer Architecture Explained</a></li>
-                    <li><a href="#">Add CGRelay in 10 Minutes</a></li>
-                    <li><a href="#">State Machines for Character Controllers</a></li>
-                    <li><a href="#">Inventory Systems from Scratch</a></li>
+                    <li><a href="#">🌐 Multiplayer Architecture Explained</a></li>
+                    <li><a href="cgrelay.html">🚀 Add CGRelay in 10 Minutes</a></li>
+                    <li><a href="#">⚙️ State Machines for Character Controllers</a></li>
+                    <li><a href="#">📦 Inventory Systems from Scratch</a></li>
+                    <li><a href="#">🎨 UI & Menu Systems for Multiplayer Games</a></li>
                 </ul>
                 <a href="#" class="path-link">Level Up →</a>
             </div>
@@ -139,10 +594,11 @@
                 <h3>🚀 Advanced / Studio</h3>
                 <p>Scale your game with production-ready systems.</p>
                 <ul>
-                    <li><a href="#">Authoritative Server Architecture</a></li>
-                    <li><a href="#">GodotConnect: Privacy-First P2P</a></li>
-                    <li><a href="#">AI NPC Integration (Groq/Gemini)</a></li>
-                    <li><a href="#">Optimizing for 50+ Concurrent Players</a></li>
+                    <li><a href="#">🖥️ Authoritative Server Architecture</a></li>
+                    <li><a href="godotconnect.html">🔒 GodotConnect: Privacy-First P2P</a></li>
+                    <li><a href="#">🤖 AI NPC Integration (Groq/Gemini)</a></li>
+                    <li><a href="#">📈 Optimizing for 50+ Concurrent Players</a></li>
+                    <li><a href="#">💰 Monetization & LiveOps Systems</a></li>
                 </ul>
                 <a href="#" class="path-link">Go Pro →</a>
             </div>
@@ -152,32 +608,244 @@
             <h2>Free Tools to Help You Learn</h2>
             <div class="tools-grid">
                 <div class="tool-card">
-                    <h3>GodotVisualCoder</h3>
-                    <p>Generate GDScript without typing</p>
+                    <h3>🎨 GodotVisualCoder</h3>
+                    <p>Generate GDScript without typing. Fill forms, get paste-ready code instantly.</p>
                     <a href="godotvisualcoder.html" class="tool-link">Try Free →</a>
                 </div>
                 <div class="tool-card">
-                    <h3>AI Coder</h3>
-                    <p>AI-assisted GDScript generation</p>
+                    <h3>🤖 AI Coder</h3>
+                    <p>AI-assisted GDScript generation. Get code suggestions and boilerplate fast.</p>
                     <a href="#" class="tool-link">Download Free →</a>
                 </div>
                 <div class="tool-card">
-                    <h3>CGRelay Demo</h3>
-                    <p>Test multiplayer with a friend</p>
+                    <h3>🔄 CGRelay Demo</h3>
+                    <p>Test multiplayer with a friend. No setup, no payment. Just download and play.</p>
                     <a href="#" class="tool-link">Try Demo →</a>
                 </div>
+                <div class="tool-card">
+                    <h3>📚 Godot Cheat Sheet</h3>
+                    <p>Quick reference for GDScript syntax, nodes, and common patterns.</p>
+                    <a href="#" class="tool-link">Download PDF →</a>
+                </div>
             </div>
+        </section>
+        
+        <section style="text-align: center; margin-top: 4rem; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius);">
+            <h2 style="margin-bottom: 1rem;">Need One-on-One Help?</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Get personalized guidance for your Godot project.</p>
+            <a href="services.html#consult" class="cta-button-primary" style="padding: 0.75rem 2rem;">Book Free Consultation →</a>
         </section>
     </main>
     
     <div id="footer"></div>
     
     <script>
-        // Load header and footer components
-        fetch('components/header.html')
-            .then(r => r.text())
-            .then(data => document.getElementById('header').innerHTML = data);
-        // Similar for footer
+        // Header Component with Navigation
+        const HeaderComponent = {
+            render: function() {
+                const basePath = this.getBasePath();
+                
+                return `
+                    <header>
+                        <div class="container">
+                            <nav>
+                                <div class="logo">
+                                    <a href="${basePath}index.html">Sanjay<span>AIDev</span></a>
+                                    <span class="tagline">Godot Expert</span>
+                                </div>
+                                
+                                <!-- Desktop Navigation -->
+                                <div class="nav-links">
+                                    <a href="${basePath}index.html">Home</a>
+                                    
+                                    <!-- Store Dropdown -->
+                                    <div class="dropdown">
+                                        <button class="dropbtn">Store ▼</button>
+                                        <div class="dropdown-content">
+                                            <a href="${basePath}cgstore.html?category=multiplayer">🎮 Multiplayer Systems</a>
+                                            <a href="${basePath}cgstore.html?category=ai">🤖 AI & Tools</a>
+                                            <a href="${basePath}cgstore.html?category=gamekits">🎲 Complete Game Kits</a>
+                                            <a href="${basePath}cgstore.html?category=systems">⚙️ Universal Systems</a>
+                                            <a href="${basePath}cgstore.html?category=bundles">📦 Bundles</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Services Dropdown -->
+                                    <div class="dropdown">
+                                        <button class="dropbtn">Services ▼</button>
+                                        <div class="dropdown-content">
+                                            <a href="${basePath}godotmp.html">⚡ Done-For-You Networking</a>
+                                            <a href="${basePath}godotconnect.html">🔒 Privacy P2P Backend</a>
+                                            <a href="${basePath}cgrelay.html">🔄 Managed Relay Server</a>
+                                            <a href="${basePath}customdev.html">🛠️ Custom Development</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <a href="${basePath}freegodotassets.html">Free Tools</a>
+                                    <a href="${basePath}learn.html" class="active">Learn</a>
+                                    <a href="${basePath}blog.html">Blog</a>
+                                    <a href="${basePath}contact.html">Contact</a>
+                                </div>
+                                
+                                <!-- CTA Buttons -->
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <a href="${basePath}cgstore.html" class="cta-button-primary">🎮 Shop</a>
+                                    <a href="${basePath}services.html#consult" class="cta-button-secondary">💬 Consult</a>
+                                </div>
+                                
+                                <!-- Mobile Menu Button -->
+                                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+                            </nav>
+                        </div>
+                        
+                        <!-- Mobile Menu -->
+                        <div class="mobile-menu" id="mobileMenu">
+                            <div class="mobile-menu-header">
+                                <div class="mobile-menu-logo">SanjayAIDev</div>
+                                <button class="mobile-close-btn" id="mobileCloseBtn">✕</button>
+                            </div>
+                            
+                            <div class="mobile-nav-links">
+                                <a href="${basePath}index.html">Home</a>
+                                <div class="mobile-dropdown">
+                                    <div class="mobile-dropdown-header">Store</div>
+                                    <a href="${basePath}cgstore.html?category=multiplayer">→ Multiplayer Systems</a>
+                                    <a href="${basePath}cgstore.html?category=ai">→ AI & Tools</a>
+                                    <a href="${basePath}cgstore.html?category=gamekits">→ Complete Game Kits</a>
+                                    <a href="${basePath}cgstore.html?category=systems">→ Universal Systems</a>
+                                </div>
+                                <div class="mobile-dropdown">
+                                    <div class="mobile-dropdown-header">Services</div>
+                                    <a href="${basePath}godotmp.html">→ Done-For-You Networking</a>
+                                    <a href="${basePath}godotconnect.html">→ Privacy P2P Backend</a>
+                                    <a href="${basePath}cgrelay.html">→ Managed Relay Server</a>
+                                    <a href="${basePath}customdev.html">→ Custom Development</a>
+                                </div>
+                                <a href="${basePath}freegodotassets.html">Free Tools</a>
+                                <a href="${basePath}learn.html">Learn</a>
+                                <a href="${basePath}blog.html">Blog</a>
+                                <a href="${basePath}contact.html">Contact</a>
+                                <a href="${basePath}cgstore.html" class="cta-button-primary" style="display: block; text-align: center; margin: 1rem;">Shop Now</a>
+                                <a href="${basePath}services.html#consult" class="cta-button-secondary" style="display: block; text-align: center; margin: 1rem;">Free Consultation</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Mobile Menu Overlay -->
+                        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+                    </header>
+                `;
+            },
+        
+            getBasePath: function() {
+                const path = window.location.pathname;
+                // Check if we're in a subdirectory
+                if (path.includes('/legal/') || path.includes('/blog/') || path.includes('/pages/')) {
+                    return '../';
+                }
+                return './';
+            },
+        
+            init: function() {
+                // Set active page
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                document.querySelectorAll('.nav-links a, .mobile-nav-links a').forEach(link => {
+                    const href = link.getAttribute('href')?.split('/').pop()?.split('?')[0];
+                    if (href === currentPage) {
+                        link.classList.add('active');
+                    }
+                });
+        
+                // Mobile menu logic
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        
+                if (mobileMenuBtn && mobileCloseBtn && mobileMenu && mobileMenuOverlay) {
+                    function openMobileMenu() {
+                        mobileMenu.classList.add('active');
+                        mobileMenuOverlay.classList.add('active');
+                        document.body.classList.add('menu-open');
+                    }
+        
+                    function closeMobileMenu() {
+                        mobileMenu.classList.remove('active');
+                        mobileMenuOverlay.classList.remove('active');
+                        document.body.classList.remove('menu-open');
+                    }
+        
+                    mobileMenuBtn.addEventListener('click', openMobileMenu);
+                    mobileCloseBtn.addEventListener('click', closeMobileMenu);
+                    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') closeMobileMenu();
+                    });
+                }
+                
+                // Dropdown hover logic for desktop
+                const dropdowns = document.querySelectorAll('.dropdown');
+                dropdowns.forEach(dropdown => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    dropdown.addEventListener('mouseenter', () => {
+                        if (content) content.style.display = 'block';
+                    });
+                    dropdown.addEventListener('mouseleave', () => {
+                        if (content) content.style.display = 'none';
+                    });
+                });
+            }
+        };
+        
+        // Footer Component
+        const FooterComponent = {
+            render: function() {
+                const basePath = HeaderComponent.getBasePath();
+                const year = new Date().getFullYear();
+                
+                return `
+                    <footer>
+                        <div class="footer-content">
+                            <div class="footer-section">
+                                <h4>SanjayAIDev</h4>
+                                <p>Your go-to expert for Godot game development. From beginner tutorials to production-ready multiplayer systems.</p>
+                            </div>
+                            <div class="footer-section">
+                                <h4>Quick Links</h4>
+                                <a href="${basePath}cgstore.html">Store</a>
+                                <a href="${basePath}freegodotassets.html">Free Tools</a>
+                                <a href="${basePath}services.html">Services</a>
+                                <a href="${basePath}learn.html">Learn Godot</a>
+                            </div>
+                            <div class="footer-section">
+                                <h4>Support</h4>
+                                <a href="${basePath}contact.html">Contact</a>
+                                <a href="${basePath}faq.html">FAQ</a>
+                                <a href="${basePath}legal/terms.html">Terms of Service</a>
+                                <a href="${basePath}legal/privacy.html">Privacy Policy</a>
+                            </div>
+                            <div class="footer-section">
+                                <h4>Connect</h4>
+                                <a href="https://youtube.com/@Champ_gaming" target="_blank">YouTube</a>
+                                <a href="#">GitHub</a>
+                                <a href="#">Twitter</a>
+                                <a href="#">Discord</a>
+                            </div>
+                        </div>
+                        <div class="footer-bottom">
+                            <p>© ${year} SanjayAIDev. All rights reserved. Built with ❤️ for the Godot community.</p>
+                        </div>
+                    </footer>
+                `;
+            }
+        };
+        
+        // Load header and footer
+        document.getElementById('header').innerHTML = HeaderComponent.render();
+        document.getElementById('footer').innerHTML = FooterComponent.render();
+        
+        // Initialize header functionality
+        HeaderComponent.init();
     </script>
 </body>
 </html>
